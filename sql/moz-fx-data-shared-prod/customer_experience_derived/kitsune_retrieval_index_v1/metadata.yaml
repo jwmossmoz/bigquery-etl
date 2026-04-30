@@ -1,0 +1,45 @@
+friendly_name: Kitsune Retrieval Index
+description: |-
+  AI-enriched retrieval table derived from Kitsune, containing embeddings and semantic features
+   to support grounded question answering over Mozilla Support (SUMO) data.
+
+  Grain: one row per date, question_id and answer_id.
+
+  LLM generated fields:
+  - summary_llm
+  - category_llm
+  - language_llm
+  - entities_llm
+  - embedding based on [title, content]
+  - sentiment_score based on [title, content]
+  - recency, where 7 days is the time when content begins to lose relevance.
+
+  Metadata
+  - Additional data to support technical processes, such as backfills or investigations.
+  - The prompt version is a self-managed version for changes in the prompt given to the LLM.
+owners:
+- lvargas@mozilla.com
+- mozilla/customer_experience
+labels:
+  level: gold
+  incremental: true
+  change_controlled: true
+scheduling:
+  dag_name: bqetl_analytics_tables
+bigquery:
+  time_partitioning:
+    type: day
+    field: 'creation_date'
+    require_partition_filter: true
+    expiration_days: null
+  clustering:
+    fields:
+    - product
+    - locale
+require_column_descriptions: true
+monitoring:
+  enabled: true
+references:
+  query.sql:
+  - moz-fx-data-shared-prod.sumo_syndicate.kitsune_questions_plus
+  - moz-fx-sumo-prod.sumo.kitsune_answers_raw
